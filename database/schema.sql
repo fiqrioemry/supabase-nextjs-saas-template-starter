@@ -1,17 +1,19 @@
 -- ======================
 -- 1. PROFILES
 -- ======================
-create table profiles (
-  id uuid primary key references auth.users(id) on delete cascade,
-  display_name text,
-  bio text,
-  website text,
-  created_at timestamptz default now()
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  display_name TEXT,
+  bio TEXT CHECK (char_length(bio) <= 160),
+  website TEXT,
+  avatar_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- kalau mau otomatis create profile setiap user baru signup
--- bisa pakai trigger dari supabase
--- misalnya via supabase function handle_new_user()
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS profiles_display_name_idx ON profiles(display_name);
+CREATE INDEX IF NOT EXISTS profiles_created_at_idx ON profiles(created_at);
 
 -- ======================
 -- 2. FORMS

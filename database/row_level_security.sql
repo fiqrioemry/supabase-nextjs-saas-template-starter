@@ -1,25 +1,30 @@
 -- aktifkan RLS
-alter table forms enable row level security;
-alter table form_fields enable row level security;
-alter table form_responses enable row level security;
-alter table payments enable row level security;
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE forms ENABLE ROW LEVEL SECURITY;
+ALTER TABLE form_fields ENABLE ROW LEVEL SECURITY;
+ALTER TABLE form_responses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 
-create policy "Users can manage their own forms"
-  on forms
-  for all
-  using (auth.uid() = user_id);
 
-create policy "Users can manage their own form fields"
-  on form_fields
-  for all
-  using (auth.uid() in (select user_id from forms where forms.id = form_fields.form_id));
+CREATE POLICY "Public profiles are viewable by everyone." ON profiles
+  FOR SELECT USING (true);
 
-create policy "Anyone can submit responses"
-  on form_responses
-  for insert
-  with check (true);
+CREATE POLICY "Users can insert their own profile." ON profiles
+  FOR INSERT WITH CHECK (auth.uid() = id);
 
-create policy "Users can view responses for their own forms"
-  on form_responses
-  for select
-  using (auth.uid() in (select user_id from forms where forms.id = form_responses.form_id));
+CREATE POLICY "Users can update own profile." ON profiles
+  FOR UPDATE USING (auth.uid() = id);
+
+CREATE POLICY "Users can manage their own forms" ON forms
+  FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can manage their own form fields" ON form_fields
+  FOR ALL USING (auth.uid() IN (SELECT user_id FROM forms WHERE forms.id = form_fields.form_id));
+
+CREATE POLICY "Anyone can submit responses" ON form_responses
+  FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Users can view responses for their own forms" ON form_responses
+  FOR SELECT
+  USING (auth.uid() IN (SELECT user_id FROM forms WHERE forms.id = form_responses.form_id));
