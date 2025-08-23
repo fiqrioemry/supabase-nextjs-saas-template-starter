@@ -1,8 +1,8 @@
 "use server";
 
-import { createServer } from "@/lib/supabase/server";
-import { profileUpdateSchema, type ProfileUpdateInput } from "@/schemas/auth";
 import { revalidatePath } from "next/cache";
+import { createServer } from "@/lib/supabase/server";
+import { profileUpdateSchema } from "@/lib/schemas/auth";
 
 export async function updateUserProfile(formData: FormData) {
   const supabase = await createServer();
@@ -36,50 +36,20 @@ export async function updateUserProfile(formData: FormData) {
   const updateData = validation.data;
 
   // Update profile in database
-  const { data, error } = await supabase
-    .from("profiles")
-    .update({
+  const { data, error } = await supabase.auth.updateUser({
+    data: {
       display_name: updateData.display_name,
-      bio: updateData.bio || null,
-      website: updateData.website || null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", user.id)
-    .select()
-    .single();
+      bio: updateData?.bio,
+      website: updateData?.website,
+    },
+  });
 
   if (error) {
-    console.error("Error updating profile:", error);
     return { error: "Failed to update profile" };
   }
 
   // Revalidate the dashboard page
   revalidatePath("/dashboard");
-
-  return { success: true, data };
-}
-
-export async function createUserProfile(
-  userId: string,
-  profileData: ProfileUpdateInput
-) {
-  const supabase = createServer();
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .insert({
-      id: userId,
-      display_name: profileData.display_name,
-      bio: profileData.bio || null,
-      website: profileData.website || null,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error("Error creating profile:", error);
-    return { error: "Failed to create profile" };
-  }
 
   return { success: true, data };
 }
