@@ -1,19 +1,8 @@
--- aktifkan RLS
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE forms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE form_fields ENABLE ROW LEVEL SECURITY;
 ALTER TABLE form_responses ENABLE ROW LEVEL SECURITY;
-ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 
-
-CREATE POLICY "Public profiles are viewable by everyone." ON profiles
-  FOR SELECT USING (true);
-
-CREATE POLICY "Users can insert their own profile." ON profiles
-  FOR INSERT WITH CHECK (auth.uid() = id);
-
-CREATE POLICY "Users can update own profile." ON profiles
-  FOR UPDATE USING (auth.uid() = id);
 
 CREATE POLICY "Users can manage their own forms" ON forms
   FOR ALL USING (auth.uid() = user_id);

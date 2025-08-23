@@ -1,35 +1,67 @@
--- Create function to handle updated_at
-CREATE OR REPLACE FUNCTION handle_updated_at()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION check_user_signup_method(email_to_check text)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  user_record RECORD;
+  provider_list text[];
+  result json;
 BEGIN
-  NEW.updated_at = TIMEZONE('utc'::text, NOW());
-  RETURN NEW;
+  -- Get user info with providers
+  SELECT 
+    u.id,
+    u.email,
+    u.email_confirmed_at IS NOT NULL as email_confirmed,
+    array_agg(i.provider) as providers
+  INTO user_record
+  FROM auth.users u
+  LEFT JOIN auth.identities i ON u.id = i.user_id
+  WHERE u.email = email_to_check
+  GROUP BY u.id, u.email, u.email_confirmed_at;
+  
+  IF user_record.id IS NULL THEN
+    -- User doesn't exist
+    result := json_build_object(
+      'exists', false,
+      'providers', '[]'::json,
+      'email_confirmed', false
+    );
+  ELSE
+    -- User exists
+    result := json_build_object(
+      'exists', true,
+      'providers', to_json(user_record.providers),
+      'email_confirmed', user_record.email_confirmed
+    );
+  END IF;
+  
+  RETURN result;
 END;
-$$ LANGUAGE plpgsql;
+$$; 
 
--- Create trigger for updated_at
-CREATE TRIGGER handle_profiles_updated_at
-  BEFORE UPDATE ON profiles
-  FOR EACH ROW
-  EXECUTE FUNCTION handle_updated_at();
 
--- Create function to automatically create profile on user signup
-CREATE OR REPLACE FUNCTION public.handle_new_user() 
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION delete_account()
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  current_user_id uuid;
 BEGIN
-  INSERT INTO public.profiles (id, display_name, bio, website)
-  VALUES (
-    NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'display_name', NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', 'User'),
-    COALESCE(NEW.raw_user_meta_data->>'bio', ''),
-    COALESCE(NEW.raw_user_meta_data->>'website', '')
-  );
-  RETURN NEW;
+  -- Pastikan user sudah login
+  current_user_id := auth.uid();
+  
+  IF current_user_id IS NULL THEN
+    RETURN json_build_object('error', 'User not authenticated');
+  END IF;
+  
+  -- Hapus user (cascade kalau ada FK constraints)
+  DELETE FROM auth.users WHERE id = current_user_id;
+  
+  RETURN json_build_object('success', true, 'message', 'Account deleted successfully');
+  
+EXCEPTION WHEN OTHERS THEN
+  RETURN json_build_object('error', SQLERRM);
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Create trigger for new user signup
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
+$$;
