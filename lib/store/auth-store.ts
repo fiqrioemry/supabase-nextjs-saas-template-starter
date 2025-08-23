@@ -1,18 +1,17 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { User, Session } from "@supabase/supabase-js";
-import type { Profile } from "@/lib/types/database";
 
 interface AuthState {
   user: User | null;
   session: Session | null;
-  profile: Profile | null;
   isLoading: boolean;
 
-  setAuth: (user: User | null, session: Session | null) => void;
-  setProfile: (profile: Profile | null) => void;
-  setLoading: (loading: boolean) => void;
   signOut: () => void;
+  clearAuth: () => void;
+  setLoading: (loading: boolean) => void;
+  setUser: (user: User) => void;
+  setAuth: (user: User | null, session: Session | null) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -20,17 +19,17 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       session: null,
-      profile: null,
       isLoading: true,
 
-      setAuth: (user, session) => set({ user, session, isLoading: false }),
-
-      setProfile: (profile) => set({ profile }),
+      setUser: (user) => set({ user }),
 
       setLoading: (isLoading) => set({ isLoading }),
 
-      signOut: () =>
-        set({ user: null, session: null, profile: null, isLoading: false }),
+      setAuth: (user, session) => set({ user, session, isLoading: false }),
+
+      signOut: () => set({ user: null, session: null, isLoading: false }),
+
+      clearAuth: () => set({ user: null, session: null, isLoading: false }),
     }),
     {
       name: "auth-storage",

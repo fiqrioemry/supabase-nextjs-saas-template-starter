@@ -43,7 +43,7 @@ export const otpVerificationSchema = z.object({
 });
 
 // Password Reset Schema
-export const passwordResetSchema = z.object({
+export const resetPasswordSchema = z.object({
   email: z
     .string()
     .min(1, "Email is required")
@@ -51,23 +51,8 @@ export const passwordResetSchema = z.object({
     .toLowerCase(),
 });
 
-// Update Password Schema
-export const updatePasswordSchema = z
-  .object({
-    password: z
-      .string()
-      .min(6, "Password must be at least 6 characters")
-      .max(100, "Password must not exceed 100 characters"),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
 // Type exports
 export type SignUpInput = z.infer<typeof signUpSchema>;
 export type SignInInput = z.infer<typeof signInSchema>;
 export type OtpVerificationInput = z.infer<typeof otpVerificationSchema>;
-export type PasswordResetInput = z.infer<typeof passwordResetSchema>;
-export type UpdatePasswordInput = z.infer<typeof updatePasswordSchema>;
+export type resetPassswordInput = z.infer<typeof resetPasswordSchema>;
