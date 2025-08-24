@@ -7,7 +7,9 @@ import {
 } from "@tanstack/react-query";
 import { useState } from "react";
 import { isLocalMode } from "@/lib/config";
+import { Toaster } from "@/components/ui/sonner";
 import { handleApiError } from "@/lib/error-handler";
+import { ThemeProvider, useTheme } from "next-themes";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export function ReactQueryProvider({
@@ -49,18 +51,27 @@ export function ReactQueryProvider({
       })
   );
 
+  const { theme } = useTheme();
   const isLocal = isLocalMode();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <HydrationBoundary
-        state={
-          dehydratedState as import("@tanstack/react-query").DehydratedState
-        }
-      >
-        {children}
-        {isLocal && <ReactQueryDevtools initialIsOpen={false} />}
-      </HydrationBoundary>
-    </QueryClientProvider>
+    <ThemeProvider
+      enableSystem
+      attribute="class"
+      defaultTheme="system"
+      disableTransitionOnChange
+    >
+      <QueryClientProvider client={queryClient}>
+        <HydrationBoundary
+          state={
+            dehydratedState as import("@tanstack/react-query").DehydratedState
+          }
+        >
+          <Toaster theme={theme as "light" | "dark" | "system"} richColors />;
+          {children}
+          {isLocal && <ReactQueryDevtools initialIsOpen={false} />}
+        </HydrationBoundary>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
