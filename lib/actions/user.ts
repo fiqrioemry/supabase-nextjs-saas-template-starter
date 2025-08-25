@@ -1,8 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { createServer } from "@/lib/supabase/server";
-import { useAuthStore } from "@/lib/store/auth-store";
 import { preferenceSchema, profileSchema } from "@/lib/schemas/user";
 
 export async function updateUserProfile(formData: FormData) {
@@ -49,21 +47,14 @@ export async function updateUserProfile(formData: FormData) {
     return { error: "Failed to update profile" };
   }
 
-  // Revalidate the dashboard page
-  revalidatePath("/dashboard");
-
   return { success: true, data };
 }
 
 export const deleteAccount = async () => {
   const supabase = await createServer();
-  const { clearAuth } = useAuthStore.getState();
-
-  const { data, error } = await supabase.rpc("delete_account");
+  const { error } = await supabase.rpc("delete_account");
   if (error) throw error;
-
-  clearAuth();
-  return data;
+  return { success: true, message: "Account deleted successfully" };
 };
 
 export const changePassword = async (
@@ -106,7 +97,6 @@ export const changePassword = async (
 };
 
 export const updateProfile = async (form: FormData) => {
-  const { setUser } = useAuthStore.getState();
   const supabase = await createServer();
 
   // Extract and validate form data
@@ -131,8 +121,6 @@ export const updateProfile = async (form: FormData) => {
 
   if (error) throw error;
 
-  setUser(data.user);
-
   return {
     success: true,
     data: data.user,
@@ -140,7 +128,6 @@ export const updateProfile = async (form: FormData) => {
 };
 
 export const updatePreference = async (form: FormData) => {
-  const { setUser } = useAuthStore.getState();
   const supabase = await createServer();
 
   // Extract and validate form data
@@ -165,8 +152,6 @@ export const updatePreference = async (form: FormData) => {
   });
 
   if (error) throw error;
-
-  setUser(data.user);
 
   return {
     success: true,

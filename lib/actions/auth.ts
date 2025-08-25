@@ -1,9 +1,8 @@
 "use server";
 
-import { createServer } from "@/lib/supabase/server";
-import { authProviders } from "@/lib/supabase/config";
-import type { OtpVerificationInput } from "@/lib/schemas/auth";
 import { redirect } from "next/navigation";
+import { createServer } from "@/lib/supabase/server";
+import type { OtpVerificationInput } from "@/lib/schemas/auth";
 
 interface AuthResponse {
   success: boolean;
@@ -14,7 +13,7 @@ interface AuthResponse {
 }
 
 // Get timezone and language from IP
-const getLocationData = async () => {
+export const getLocationData = async () => {
   try {
     const response = await fetch("http://ip-api.com/json/");
     const data = await response.json();
@@ -80,9 +79,7 @@ export async function signInWithPassword(
     };
   }
 
-  // Redirect after successful login
-  const redirectUrl = (formData.get("redirectUrl") as string) || "/dashboard";
-  redirect(redirectUrl);
+  return { success: true, data, message: "Login Successfully" };
 }
 
 export async function signUpWithPassword(
@@ -239,7 +236,7 @@ export async function verifyOtp(data: OtpVerificationInput): Promise<any> {
     const { data: authData, error } = await supabase.auth.verifyOtp({
       email: data.email,
       token: data.token,
-      type: "email", // Changed from "signup" to "email" to match React version
+      type: "email",
     });
 
     if (error) {
@@ -249,7 +246,6 @@ export async function verifyOtp(data: OtpVerificationInput): Promise<any> {
     if (authData.session && authData.user) {
       return {
         ...authData,
-        verified: true,
         message: "Email verified successfully!",
       };
     }
@@ -309,27 +305,6 @@ export async function resendOtp(
       message: "An unexpected error occurred",
     };
   }
-}
-
-type Provider = "google" | "github" | "discord" | "facebook";
-
-export async function signInWithOAuth(provider: Provider, redirectTo?: string) {
-  const supabase = await createServer();
-
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: {
-      redirectTo:
-        redirectTo || `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-      queryParams: {
-        access_type: "offline",
-        prompt: "consent",
-      },
-    },
-  });
-
-  if (error) throw error;
-  return data;
 }
 
 // Helper function untuk handle OAuth callback
@@ -401,14 +376,13 @@ export async function setupOAuthUserMetadata(user: any) {
   }
 }
 
-export async function signOut(): Promise<void> {
+export async function signOut() {
   const supabase = await createServer();
-
   const { error } = await supabase.auth.signOut();
 
   if (error) {
-    throw new Error(error.message);
+    console.log(error);
   }
 
-  redirect("/auth/signin");
+  redirect("/signin");
 }

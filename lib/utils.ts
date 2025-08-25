@@ -6,14 +6,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatDate(date: string | Date) {
-  return new Intl.DateTimeFormat("en-US", {
+export function formatDate(date: string | number | Date) {
+  const d = new Date(date);
+
+  // handle invalid dates gracefully
+  if (isNaN(d.getTime())) {
+    return "-";
+  }
+
+  return new Intl.DateTimeFormat("id-ID", {
     year: "numeric",
     month: "long",
     day: "numeric",
-  }).format(new Date(date));
+  }).format(d);
 }
-
 export function getInitials(name: string) {
   return name
     .split(" ")
