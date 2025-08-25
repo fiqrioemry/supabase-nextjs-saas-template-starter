@@ -1,10 +1,10 @@
 import { useEffect } from "react";
-import { useAuthStore } from "@/lib/store/auth-store";
+import { useAuth } from "@/providers/auth-providers";
 
 type Theme = "light" | "dark" | "system";
 
 export const useTheme = () => {
-  const { user } = useAuthStore();
+  const { user } = useAuth();
 
   const applyTheme = (theme: Theme) => {
     const root = window.document.documentElement;
