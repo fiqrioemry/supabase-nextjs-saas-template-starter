@@ -27,7 +27,7 @@ export const SelectFilter = ({
       </SelectTrigger>
       <SelectContent>
         {options.map((opt) => (
-          <SelectItem value={opt.value}>
+          <SelectItem value={opt.value} key={opt.value}>
             <span>
               {opt.icon && <opt.icon className="inline-block h-4 w-4" />}
             </span>
