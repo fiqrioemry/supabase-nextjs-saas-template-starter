@@ -15,24 +15,15 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import { ChevronsUpDown, LogOut } from "lucide-react";
-import { useAuthStore } from "@/lib/store/auth-store";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-interface UserMetadata {
-  display_name: string;
-  email: string;
-  avatar_url: string;
-  bio?: string;
-  website?: string;
-  theme?: string;
-  timezone?: string;
-  location?: string;
-  language?: string;
-}
+import { useAuth } from "@/providers/auth-providers";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "../ui/button";
+import { signOut } from "@/lib/actions/auth";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { user } = useAuthStore();
+  const { user } = useAuth();
   const userMetadata = user?.user_metadata;
   return (
     <SidebarMenu>
@@ -85,9 +76,12 @@ export function NavUser() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOut />
-              Log out
+
+            <DropdownMenuItem asChild>
+              <button className="w-full" onClick={signOut}>
+                <LogOut />
+                Log out
+              </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
