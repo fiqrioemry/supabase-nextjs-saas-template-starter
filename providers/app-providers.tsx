@@ -1,30 +1,26 @@
 "use client";
 
 import {
+  dehydrate,
   QueryClient,
   HydrationBoundary,
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { useState } from "react";
 import { isLocalMode } from "@/lib/config";
+import { AuthProvider } from "./auth-providers";
 import { Toaster } from "@/components/ui/sonner";
-import { handleApiError } from "@/lib/error-handler";
 import { ThemeProvider, useTheme } from "next-themes";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { handleApiError } from "@/lib/error-handler";
 
-export function ReactQueryProvider({
-  children,
-  dehydratedState,
-}: {
-  children: React.ReactNode;
-  dehydratedState?: unknown;
-}) {
+export function AppProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 10 * 1000,
+            staleTime: 20 * 1000,
             gcTime: 5 * 60 * 1000,
             retry: (failureCount, error: any) => {
               if (error?.status >= 400 && error?.status < 500) return false;
@@ -40,7 +36,7 @@ export function ReactQueryProvider({
               if (error?.status >= 400 && error?.status < 500) return false;
               return failureCount < 1;
             },
-            onError: (error: any, variables: any, context: any) => {
+            onError: (error: any) => {
               handleApiError(error, {
                 operation: "perform action",
                 silent: false,
@@ -53,6 +49,7 @@ export function ReactQueryProvider({
 
   const { theme } = useTheme();
   const isLocal = isLocalMode();
+  const dehydratedState = dehydrate(queryClient);
 
   return (
     <ThemeProvider
@@ -62,13 +59,9 @@ export function ReactQueryProvider({
       disableTransitionOnChange
     >
       <QueryClientProvider client={queryClient}>
-        <HydrationBoundary
-          state={
-            dehydratedState as import("@tanstack/react-query").DehydratedState
-          }
-        >
-          <Toaster theme={theme as "light" | "dark" | "system"} richColors />;
-          {children}
+        <HydrationBoundary state={dehydratedState}>
+          <Toaster theme={theme as "light" | "dark" | "system"} richColors />
+          <AuthProvider>{children}</AuthProvider>
           {isLocal && <ReactQueryDevtools initialIsOpen={false} />}
         </HydrationBoundary>
       </QueryClientProvider>
