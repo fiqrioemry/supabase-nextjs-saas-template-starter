@@ -1,11 +1,9 @@
-export interface preference {
-  theme: string;
-  timezone: string;
-  language: string;
-}
-
-export interface profile {
-  display_name: string;
-  website: string;
-  bio: string;
+export interface UserSettings {
+  display_name?: string;
+  avatar_url?: string;
+  theme?: string;
+  language?: string;
+  timezone?: string;
+  bio?: string;
+  website?: string;
 }

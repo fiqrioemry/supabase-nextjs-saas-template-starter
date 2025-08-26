@@ -3,6 +3,16 @@
 import { createServer } from "@/lib/supabase/server";
 import { preferenceSchema, profileSchema } from "@/lib/schemas/user";
 
+export async function getUser() {
+  const supabase = await createServer();
+
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error) throw error;
+
+  return { user: data.user };
+}
+
 export async function updateUserProfile(formData: FormData) {
   const supabase = await createServer();
 
@@ -57,56 +67,17 @@ export const deleteAccount = async () => {
   return { success: true, message: "Account deleted successfully" };
 };
 
-export const changePassword = async (
-  currentPassword: string,
-  newPassword: string
-) => {
-  const supabase = await createServer();
-  try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user?.email) {
-      throw new Error("User not found");
-    }
-
-    // 1. Re-authenticate user dengan password lama
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: user.email,
-      password: currentPassword,
-    });
-
-    if (signInError) {
-      throw new Error("Current password is incorrect");
-    }
-
-    // 2. Jika berhasil, update password
-    const { error: updateError } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
-
-    if (updateError) {
-      throw new Error("Failed to update password");
-    }
-
-    return { success: true, message: "Password updated successfully" };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
-};
-
 export const updateProfile = async (form: FormData) => {
   const supabase = await createServer();
 
   // Extract and validate form data
-  const rawData = {
+  const formData = {
     bio: form.get("bio") as string,
     website: form.get("website") as string,
     display_name: form.get("display_name") as string,
   };
 
-  const validation = profileSchema.safeParse(rawData);
+  const validation = profileSchema.safeParse(formData);
 
   if (!validation.success) {
     return {
@@ -116,7 +87,7 @@ export const updateProfile = async (form: FormData) => {
   }
 
   const { data, error } = await supabase.auth.updateUser({
-    data: { ...form },
+    data: { ...formData },
   });
 
   if (error) throw error;
@@ -130,15 +101,13 @@ export const updateProfile = async (form: FormData) => {
 export const updatePreference = async (form: FormData) => {
   const supabase = await createServer();
 
-  // Extract and validate form data
-  const rawData = {
+  const formData = {
     theme: form.get("theme") as string,
-    location: form.get("location") as string,
     timezone: form.get("timezone") as string,
     language: form.get("language") as string,
   };
 
-  const validation = preferenceSchema.safeParse(rawData);
+  const validation = preferenceSchema.safeParse(formData);
 
   if (!validation.success) {
     return {
@@ -148,7 +117,7 @@ export const updatePreference = async (form: FormData) => {
   }
 
   const { data, error } = await supabase.auth.updateUser({
-    data: { ...form },
+    data: { ...formData },
   });
 
   if (error) throw error;
