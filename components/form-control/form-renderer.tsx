@@ -39,7 +39,7 @@ export function FormRenderer({
     <FormProvider {...methods}>
       <form
         onSubmit={methods.handleSubmit(handleSubmit)}
-        className="grid grid-cols-4  gap-4 w-full"
+        className="grid grid-cols-4 gap-4 w-full"
       >
         {fields.map((cfg, idx) => (
           <div key={cfg.name || idx} className={cfg.className || "col-span-4"}>

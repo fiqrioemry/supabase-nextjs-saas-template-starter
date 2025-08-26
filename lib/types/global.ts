@@ -1,10 +1,3 @@
-export interface PaginationProps {
-  page: number;
-  limit: number;
-  total: number;
-  onPageChange: (page: number) => void;
-}
-
 export interface BaseQuery {
   q: string;
   page: number;
@@ -17,6 +10,13 @@ export interface Success {
   message: string;
   data: any;
   meta?: any;
+}
+
+export interface PaginationProps {
+  page: number;
+  limit: number;
+  total: number;
+  onPageChange: (page: number) => void;
 }
 
 export type Theme =

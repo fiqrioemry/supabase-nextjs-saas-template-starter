@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Controller, useFormContext } from "react-hook-form";
-import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 import { Button } from "@/components/ui/button";
 import { FileText, PlusCircle, X } from "lucide-react";
+import { Controller, useFormContext } from "react-hook-form";
+import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 
 interface FileFieldProps {
   name: string;

@@ -4,36 +4,19 @@ import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { deleteAccount } from "@/lib/actions/user";
-import { hasPassword } from "@/lib/actions/auth";
 import { Calendar, Mail, User2 } from "lucide-react";
 import { DialogConfirm } from "@/components/shared/dialog-confirm";
 import { ChangePasswordDialog } from "@/components/settings/change-password-dialog";
 import { CreatePasswordDialog } from "@/components/settings/create-password-dialog";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { User } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
 
 export function AccountForm({ user }: { user: User }) {
   const router = useRouter();
-  const [userHasPassword, setUserHasPassword] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkPasswordStatus = async () => {
-      try {
-        const result = await hasPassword();
-        setUserHasPassword(result.hasPassword);
-      } catch (error) {
-        console.error("Failed to check password status:", error);
-        // Fallback to provider check
-        setUserHasPassword(user?.app_metadata?.provider === "email");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkPasswordStatus();
-  }, [user?.app_metadata?.provider]);
+  const userHasPassword =
+    user.app_metadata?.provider === "email" ||
+    user.user_metadata?.has_password === true ||
+    user.app_metadata?.has_password === true;
 
   const handleDeleteAccount = async () => {
     const result = await deleteAccount();
@@ -120,11 +103,7 @@ export function AccountForm({ user }: { user: User }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            </div>
-          ) : userHasPassword ? (
+          {userHasPassword ? (
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1">
                 <h4 className="text-sm font-semibold text-foreground">
@@ -134,19 +113,7 @@ export function AccountForm({ user }: { user: User }) {
                   Update your password regularly to keep your account secure.
                 </p>
               </div>
-              <ChangePasswordDialog onSuccess={() => {
-                // Refresh password status after successful password change
-                const checkPasswordStatus = async () => {
-                  try {
-                    const result = await hasPassword();
-                    setUserHasPassword(result.hasPassword);
-                  } catch (error) {
-                    console.error("Failed to check password status:", error);
-                    setUserHasPassword(user?.app_metadata?.provider === "email");
-                  }
-                };
-                checkPasswordStatus();
-              }} />
+              <ChangePasswordDialog />
             </div>
           ) : (
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -159,19 +126,7 @@ export function AccountForm({ user }: { user: User }) {
                   password to enable email login and password reset.
                 </p>
               </div>
-              <CreatePasswordDialog onSuccess={() => {
-                // Refresh password status after successful password creation
-                const checkPasswordStatus = async () => {
-                  try {
-                    const result = await hasPassword();
-                    setUserHasPassword(result.hasPassword);
-                  } catch (error) {
-                    console.error("Failed to check password status:", error);
-                    setUserHasPassword(user?.app_metadata?.provider === "email");
-                  }
-                };
-                checkPasswordStatus();
-              }} />
+              <CreatePasswordDialog />
             </div>
           )}
         </CardContent>

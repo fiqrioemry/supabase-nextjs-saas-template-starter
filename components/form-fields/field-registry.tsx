@@ -1,4 +1,5 @@
 "use client";
+
 import type { FieldConfig, FieldType } from "@/lib/types/form";
 import { TimeField } from "@/components/form-fields/time-field";
 import { DateField } from "@/components/form-fields/date-field";
@@ -9,11 +10,11 @@ import { NumberField } from "@/components/form-fields/number-field";
 import { SwitchField } from "@/components/form-fields/switch-field";
 import { RatingField } from "@/components/form-fields/rating-field";
 import { SliderField } from "@/components/form-fields/slider-field";
+import { PasswordField } from "@/components/form-fields/password-field";
 import { LongTextField } from "@/components/form-fields/long-text-field";
 import { ShortTextField } from "@/components/form-fields/short-text-field";
 import { RadioGroupField } from "@/components/form-fields/ratio-group-field";
 import { CheckboxGroupField } from "@/components/form-fields/checkbox-group-field";
-import { PasswordField } from "./password-field";
 
 type Renderer = (cfg: FieldConfig) => React.ReactNode;
 

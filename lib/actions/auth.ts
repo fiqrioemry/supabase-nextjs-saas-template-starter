@@ -8,8 +8,123 @@ interface AuthResponse {
   success: boolean;
   message: string;
   data?: any;
-  needsVerification?: boolean;
   email?: string;
+  needsVerification?: boolean;
+}
+
+export const changePassword = async (
+  newPassword: string,
+  currentPassword: string
+) => {
+  const supabase = await createServer();
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user?.email) {
+      throw new Error("User not found");
+    }
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email.toLowerCase(),
+      password: currentPassword,
+    });
+
+    console.log(signInError);
+    if (signInError) {
+      throw new Error("Current password is incorrect");
+    }
+
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (updateError) {
+      throw new Error("Failed to update password");
+    }
+
+    return { success: true, message: "Password updated successfully" };
+  } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+};
+
+// Create password for non-email provider
+export async function createPassword(
+  newPassword: string
+): Promise<{ success: boolean; message: string }> {
+  const supabase = await createServer();
+  // Get current session
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+  if (sessionError || !session) {
+    return { success: false, message: "No active session found" };
+  }
+  
+  try {
+    // Set password
+    const { error: passwordError } = await supabase.auth.updateUser({ 
+      password: newPassword 
+    });
+    
+    if (passwordError) {
+      return {
+        success: false,
+        message: passwordError.message || "Failed to set password",
+      };
+    }
+
+    // Set a flag in user metadata to indicate they now have a password
+    const { error: metadataError } = await supabase.auth.updateUser({
+      data: { has_password: true }
+    });
+
+    if (metadataError) {
+      console.warn("Failed to update user metadata:", metadataError);
+      // Don't fail the whole operation if metadata update fails
+    }
+
+    return { success: true, message: "Password set successfully" };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to set password",
+    };
+  }
+}
+
+export async function hasPassword(): Promise<{ hasPassword: boolean }> {
+  const supabase = await createServer();
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user?.email) {
+      return { hasPassword: false };
+    }
+
+    // Check if user has email provider (original signup method)
+    if (user.app_metadata?.provider === "email") {
+      return { hasPassword: true };
+    }
+
+    // For OAuth users, check if they have a password set
+    // Check if user has any password-related metadata
+    const hasPasswordSet = user.user_metadata?.has_password === true || 
+                          user.app_metadata?.has_password === true;
+    
+    return { hasPassword: hasPasswordSet };
+  } catch (error) {
+    // Fallback: check if provider is email
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return { hasPassword: user?.app_metadata?.provider === "email" };
+  }
 }
 
 // Get timezone and language from IP
@@ -304,75 +419,6 @@ export async function resendOtp(
       success: false,
       message: "An unexpected error occurred",
     };
-  }
-}
-
-// Helper function untuk handle OAuth callback
-export async function handleOAuthCallback() {
-  const supabase = await createServer();
-  const { data, error } = await supabase.auth.getSession();
-  if (error) throw error;
-  return data;
-}
-
-// Setup OAuth user metadata
-export async function setupOAuthUserMetadata(user: any) {
-  const supabase = await createServer();
-
-  try {
-    // Get location data
-    const locationData = await getLocationData();
-
-    // Extract display name from OAuth data
-    const displayName =
-      user.user_metadata?.full_name ||
-      user.user_metadata?.name ||
-      user.email?.split("@")[0] ||
-      "User";
-
-    // Generate avatar URL if not provided by OAuth
-    let avatarUrl =
-      user.user_metadata?.avatar_url || user.user_metadata?.picture;
-
-    if (!avatarUrl) {
-      avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-        displayName
-      )}&background=0D8ABC&color=fff&size=200&font-size=0.6`;
-    }
-
-    // Check if user already has complete metadata
-    const hasCompleteMetadata =
-      user.user_metadata?.display_name &&
-      user.user_metadata?.theme &&
-      user.user_metadata?.timezone;
-
-    if (hasCompleteMetadata) {
-      return { updated: false, user };
-    }
-
-    // Update user metadata with complete info
-    const { data, error } = await supabase.auth.updateUser({
-      data: {
-        ...user.user_metadata,
-        display_name: user.user_metadata?.display_name || displayName,
-        avatar_url: avatarUrl,
-        bio: user.user_metadata?.bio || "",
-        website: user.user_metadata?.website || "",
-        theme: user.user_metadata?.theme || "system",
-        language: user.user_metadata?.language || locationData.language,
-        timezone: user.user_metadata?.timezone || locationData.timezone,
-      },
-    });
-
-    if (error) {
-      console.error("Failed to update OAuth user metadata:", error);
-      return { updated: false, user, error };
-    }
-
-    return { updated: true, user: data.user };
-  } catch (error) {
-    console.error("Error setting up OAuth user metadata:", error);
-    return { updated: false, user, error };
   }
 }
 

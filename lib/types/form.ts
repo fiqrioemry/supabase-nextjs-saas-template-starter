@@ -26,7 +26,7 @@ export type ValidationConfig = {
   minItems?: number;
   maxItems?: number;
   maxSize?: number;
-  pattern?: string;
+  pattern?: boolean;
 };
 
 export type FieldConfig = {

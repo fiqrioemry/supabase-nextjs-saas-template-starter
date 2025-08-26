@@ -6,7 +6,7 @@ import { useFormContext } from "react-hook-form";
 
 interface FormSubmitButtonProps {
   label?: string;
-  mode?: "onChange" | "onBlur" | "onSubmit"; // <- baru
+  mode?: "onChange" | "onBlur" | "onSubmit";
 }
 
 export function FormSubmitButton({
@@ -46,14 +46,14 @@ export function FormActions({
     (mode !== "onSubmit" && (!formState.isDirty || !formState.isValid));
 
   return (
-    <div className="flex gap-2">
-      <Button type="submit" className="col-span-2" disabled={disabled}>
+    <div className="flex gap-2 col-span-4 w-full">
+      <Button type="submit" className="w-1/2" disabled={disabled}>
         {formState.isSubmitting ? "Processing..." : submitLabel}
       </Button>
       <Button
         type="button"
         variant="outline"
-        className="col-span-2"
+        className="w-1/2"
         onClick={() => reset(defaultValues, { keepDefaultValues: true })}
         disabled={!formState.isDirty}
       >

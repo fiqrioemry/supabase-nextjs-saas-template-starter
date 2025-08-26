@@ -17,7 +17,7 @@ export function zodFromConfig(fields: FieldConfig[]) {
         base = z.string();
         break;
       case "email":
-        base = z.string().email("Invalid email address").toLowerCase();
+        base = z.string().email("Invalid email address").toLowerCase().regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
         break;
       case "number":
         base = z
@@ -88,9 +88,6 @@ export function zodFromConfig(fields: FieldConfig[]) {
         v.maxItems,
         `${f.label || f.name} must be at most ${v.maxItems} items`
       );
-    }
-    if (v.pattern && base instanceof z.ZodString) {
-      base = base.regex(new RegExp(v.pattern));
     }
 
     if (f.type === "password" && v.pattern && base instanceof z.ZodString) {

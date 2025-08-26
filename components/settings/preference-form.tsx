@@ -1,15 +1,16 @@
 "use client";
 
 import { toast } from "sonner";
-import { Globe, Palette } from "lucide-react";
-import { Label } from "@/components/ui/label";
+import { User } from "@supabase/supabase-js";
 import { useTheme } from "@/hooks/use-theme";
+import { Label } from "@/components/ui/label";
+import { Globe, Palette } from "lucide-react";
+import { UserSettings } from "@/lib/types/user";
 import { updatePreference } from "@/lib/actions/user";
 import { SelectFilter } from "@/components/shared/select-filter";
 import { languageOptions, themeOptions, timezoneOptions } from "@/lib/constant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User } from "@supabase/supabase-js";
-import { UserSettings } from "@/lib/types/user";
+
 
 export function PreferenceForm({ user }: { user: User }) {
   const { updateTheme } = useTheme();

@@ -11,16 +11,16 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FieldConfig } from "@/lib/types/form";
-import { createPassword } from "@/lib/actions/auth";
-import { FormActions } from "../form-control/form-submit";
-import { FormRenderer } from "../form-control/form-renderer";
+import { useCreatePassword } from "@/hooks/use-auth-query";
+import { FormActions } from "@/components/form-control/form-submit";
+import { FormRenderer } from "@/components/form-control/form-renderer";
 
-interface CreatePasswordDialogProps {
-  onSuccess?: () => void;
-}
 
-export function CreatePasswordDialog({ onSuccess }: CreatePasswordDialogProps) {
+
+export function CreatePasswordDialog() {
   const [open, setOpen] = useState(false);
+  const createPasswordMutation = useCreatePassword();
+  
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
   };
@@ -34,8 +34,7 @@ export function CreatePasswordDialog({ onSuccess }: CreatePasswordDialogProps) {
       validation: {
         required: true,
         minLength: 8,
-        pattern:
-          "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,}$",
+        pattern:true,
       },
     },
     {
@@ -55,12 +54,12 @@ export function CreatePasswordDialog({ onSuccess }: CreatePasswordDialogProps) {
       toast.error("Passwords do not match");
       return;
     }
+    
     try {
-      const result = await createPassword(data.newPassword);
+      const result = await createPasswordMutation.mutateAsync(data.newPassword);
       if (result.success) {
         toast.success(result.message || "Password set successfully");
         setOpen(false);
-        onSuccess?.();
       } else {
         toast.error(result.message || "Failed to set password");
       }
@@ -79,11 +78,11 @@ export function CreatePasswordDialog({ onSuccess }: CreatePasswordDialogProps) {
           <DialogTitle>Set Up Password</DialogTitle>
         </DialogHeader>
         <FormRenderer
-          mode="onSubmit"
+          mode="onChange"
           fields={createPasswordFields}
           onSubmit={handleSubmit}
         >
-          <FormActions submitLabel="Set Password" mode="onSubmit" />
+          <FormActions submitLabel="Set Password" mode="onChange" />
         </FormRenderer>
       </DialogContent>
     </Dialog>
