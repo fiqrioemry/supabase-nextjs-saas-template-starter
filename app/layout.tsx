@@ -1,13 +1,9 @@
-import type { Metadata } from "next";
-import { ThemeProvider, useTheme } from "next-themes";
-import { Toaster } from "@/components/ui/sonner";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { dehydrate, QueryClient } from "@tanstack/react-query";
-import { ReactQueryProvider } from "@/providers/react-query-providers";
 import "./globals.css";
-import { ClientToaster } from "@/components/shared/client-toaster";
+import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
+import { Geist, Geist_Mono } from "next/font/google";
+import { AppProviders } from "@/providers/app-providers";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,8 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Next.js Supabase Saas Starter",
-  description:
-    "A modern Next.js starter with Supabase, TypeScript, and TailwindCSS",
+  description: "Saas template starter with supabase",
 };
 
 export default function RootLayout({
@@ -30,27 +25,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const queryClient = new QueryClient();
-  const dehydratedState = dehydrate(queryClient);
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Analytics />
-          <SpeedInsights />
-          <ReactQueryProvider dehydratedState={dehydratedState}>
-            <ClientToaster />
-            {children}
-          </ReactQueryProvider>
-        </ThemeProvider>
+        <Analytics />
+        <SpeedInsights />
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

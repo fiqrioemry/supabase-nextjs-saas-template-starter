@@ -8,7 +8,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { SignInForm } from "@/components/auth/sign-in-forms";
+import { SignInForm } from "@/components/auth/sign-in-form";
 
 export default function SignInPage() {
   return (

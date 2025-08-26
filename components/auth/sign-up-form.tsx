@@ -26,6 +26,39 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { AuthDivider } from "@/components/auth/auth-divider";
 import { GoogleSignIn } from "@/components/auth/google-signin";
 import { GithubSignIn } from "@/components/auth/github-signin";
+import { FormRenderer } from "../form-control/form-renderer";
+import { FormSubmitButton } from "../form-control/form-submit";
+import { FieldConfig } from "@/lib/types/form";
+
+const signUpFields: FieldConfig[] = [
+  {
+    type: "shortText",
+    name: "fullname",
+    placeholder: "Enter your full name",
+    validation: {
+      required: true,
+      minLength: 3,
+    },
+  },
+  {
+    type: "email",
+    name: "email",
+    placeholder: "Enter your email",
+    validation: {
+      required: true,
+    },
+  },
+  {
+    type: "password",
+    name: "password",
+    placeholder: "Enter your password",
+    validation: {
+      required: true,
+      minLength: 6,
+      pattern: true,
+    },
+  },
+];
 
 type SignUpStep = "signup" | "otp-verification" | "success";
 
@@ -176,68 +209,10 @@ export function SignUpForm() {
           </Alert>
         )}
 
-        <form
-          onSubmit={signupForm.handleSubmit(onSignUp)}
-          className="space-y-4"
-        >
-          <div className="space-y-2">
-            <Input
-              id="fullname"
-              type="text"
-              placeholder="Enter your full name"
-              {...signupForm.register("fullname")}
-              disabled={isLoading}
-            />
-            {signupForm.formState.errors.fullname && (
-              <p className="text-sm text-destructive">
-                {signupForm.formState.errors.fullname.message}
-              </p>
-            )}
-          </div>
+        <FormRenderer mode="onSubmit" fields={signUpFields} onSubmit={onSignUp}>
+          <FormSubmitButton label="Sign Up" mode="onSubmit" />
+        </FormRenderer>
 
-          <div className="space-y-2">
-            <Input
-              id="email"
-              type="email"
-              placeholder="Enter your email address"
-              {...signupForm.register("email")}
-              disabled={isLoading}
-            />
-            {signupForm.formState.errors.email && (
-              <p className="text-sm text-destructive">
-                {signupForm.formState.errors.email.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Input
-              id="password"
-              type="password"
-              placeholder="Create a strong password (min. 6 characters)"
-              {...signupForm.register("password")}
-              disabled={isLoading}
-            />
-            {signupForm.formState.errors.password && (
-              <p className="text-sm text-destructive">
-                {signupForm.formState.errors.password.message}
-              </p>
-            )}
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={
-              isLoading ||
-              !signupForm.formState.isDirty ||
-              !signupForm.formState.isValid
-            }
-          >
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Create Account
-          </Button>
-        </form>
         <div>
           <div className="mt-4 text-center text-sm">
             <span className="text-muted-foreground">

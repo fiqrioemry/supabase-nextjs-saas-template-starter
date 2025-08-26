@@ -1,19 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   otpVerificationSchema,
   type OtpVerificationInput,
 } from "@/lib/schemas/auth";
-import { verifyOtp, resendOtp } from "@/lib/actions/auth";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { verifyOtp, resendOtp } from "@/lib/actions/auth";
 import { Loader2, CheckCircle, Mail } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface OtpVerificationFormProps {
   email: string;

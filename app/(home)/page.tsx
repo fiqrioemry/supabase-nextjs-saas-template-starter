@@ -1,23 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, CreditCard, Sheet, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ArrowRight, CreditCard, Sheet, Zap } from "lucide-react";
 
 export default function HomePage() {
   return (
     <main className="relative flex flex-col items-center justify-center min-h-screen w-full bg-background text-foreground overflow-hidden">
-      {/* === Grid Background === */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 h-full w-full 
-        bg-[linear-gradient(to_right,theme(colors.gray.200/20)_1px,transparent_1px),linear-gradient(to_bottom,theme(colors.gray.200/20)_1px,transparent_1px)] 
-        bg-[size:40px_40px]"
-      >
-        {/* gradient overlay biar lebih hidup */}
-        <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-transparent to-pink-500/10"></div>
-      </div>
-
       {/* Hero Section */}
       <section className="relative flex flex-col items-center justify-center py-24 px-6 text-center w-full max-w-5xl">
         <motion.h1

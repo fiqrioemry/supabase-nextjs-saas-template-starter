@@ -1,19 +1,3 @@
--- ======================
--- 1. PROFILES
--- ======================
-CREATE TABLE IF NOT EXISTS profiles (
-  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-  display_name TEXT,
-  bio TEXT CHECK (char_length(bio) <= 160),
-  website TEXT,
-  avatar_url TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
-);
-
--- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS profiles_display_name_idx ON profiles(display_name);
-CREATE INDEX IF NOT EXISTS profiles_created_at_idx ON profiles(created_at);
 
 -- ======================
 -- 2. FORMS

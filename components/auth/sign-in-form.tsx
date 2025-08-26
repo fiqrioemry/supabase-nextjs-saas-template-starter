@@ -1,41 +1,48 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Loader2, XCircle } from "lucide-react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { XCircle } from "lucide-react";
+import { FieldConfig } from "@/lib/types/form";
+import { useAuth } from "@/providers/auth-providers";
+import type { SignInInput } from "@/lib/schemas/auth";
 import { signInWithPassword } from "@/lib/actions/auth";
 import { AuthDivider } from "@/components/auth/auth-divider";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GithubSignIn } from "@/components/auth/github-signin";
 import { GoogleSignIn } from "@/components/auth/google-signin";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { signInSchema, type SignInInput } from "@/lib/schemas/auth";
-import { useAuth } from "@/providers/auth-providers";
-import { toast } from "sonner";
+import { FormRenderer } from "@/components/form-control/form-renderer";
+import { FormSubmitButton } from "@/components/form-control/form-submit";
+
+const signInFields: FieldConfig[] = [
+  {
+    type: "email",
+    name: "email",
+    placeholder: "Enter your email",
+    validation: {
+      required: true,
+    },
+  },
+  {
+    type: "password",
+    name: "password",
+    placeholder: "Enter your password",
+    validation: {
+      required: true,
+    },
+  },
+];
 
 export function SignInForm() {
   const router = useRouter();
   const { setUser } = useAuth();
   const params = useSearchParams();
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const returnUrl = params.get("returnUrl") || "/dashboard";
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isDirty, isValid },
-  } = useForm<SignInInput>({
-    resolver: zodResolver(signInSchema),
-    mode: "onChange",
-  });
-
   // signin with password
   const onSubmit = async (data: SignInInput) => {
-    setIsLoading(true);
     setError(null);
 
     const formData = new FormData();
@@ -53,8 +60,6 @@ export function SignInForm() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -65,6 +70,7 @@ export function SignInForm() {
         <GithubSignIn returnUrl={returnUrl} />
       </div>
 
+
       <AuthDivider />
 
       {error && (
@@ -74,44 +80,9 @@ export function SignInForm() {
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="space-y-2">
-          <Input
-            id="email"
-            type="email"
-            placeholder="Enter your email"
-            {...register("email")}
-            disabled={isLoading}
-          />
-          {errors.email && (
-            <p className="text-sm text-destructive">{errors.email.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Input
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            {...register("password")}
-            disabled={isLoading}
-          />
-          {errors.password && (
-            <p className="text-xs text-destructive">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
-
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={isLoading || !isDirty || !isValid}
-        >
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Sign In
-        </Button>
-      </form>
+      <FormRenderer mode="onSubmit" fields={signInFields} onSubmit={onSubmit}>
+        <FormSubmitButton label="Login" mode="onSubmit" />
+      </FormRenderer>
     </div>
   );
 }

@@ -1,14 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { SignUpForm } from "@/components/auth/sign-up-forms";
+import { Card, CardContent } from "@/components/ui/card";
+import { SignUpForm } from "@/components/auth/sign-up-form";
 
 export default function SignUpPage() {
   return (

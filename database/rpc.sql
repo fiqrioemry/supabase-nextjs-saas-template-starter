@@ -56,10 +56,43 @@ BEGIN
     RETURN json_build_object('error', 'User not authenticated');
   END IF;
   
-  -- Hapus user (cascade kalau ada FK constraints)
   DELETE FROM auth.users WHERE id = current_user_id;
   
   RETURN json_build_object('success', true, 'message', 'Account deleted successfully');
+  
+EXCEPTION WHEN OTHERS THEN
+  RETURN json_build_object('error', SQLERRM);
+END;
+$$;
+
+-- Function to get form statistics for a user
+CREATE OR REPLACE FUNCTION get_user_form_stats()
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  current_user_id uuid;
+  stats json;
+BEGIN
+  -- Get current authenticated user
+  current_user_id := auth.uid();
+  
+  IF current_user_id IS NULL THEN
+    RETURN json_build_object('error', 'User not authenticated');
+  END IF;
+  
+  -- Get form statistics for the user
+  SELECT json_build_object(
+    'total_forms', COUNT(*),
+    'total_published', COUNT(*) FILTER (WHERE is_published = true),
+    'total_visitors', COALESCE(SUM(visitors), 0),
+    'total_responders', COALESCE(SUM(responders), 0)
+  ) INTO stats
+  FROM forms
+  WHERE user_id = current_user_id;
+  
+  RETURN stats;
   
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object('error', SQLERRM);

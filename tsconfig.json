@@ -29,6 +29,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "app/(dashboard)/dashboard/settings/account"
-  ],
+, "app/(dashboard)/dashboard/builder"  ],
   "exclude": ["node_modules"]
 }

@@ -19,15 +19,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const navMain = [
     {
-      title: "Forms",
-      url: "/dashboard/forms",
+      title: "Services",
+      url: "/dashboard/services",
       icon: SquareTerminal,
-      isActive: pathname === "/dashboard/forms",
+      isActive: pathname === "/dashboard/services",
     },
 
     {
       title: "Settings",
-      url: "/dashboard/settings",
+      url: "/dashboard/settings/profile",
       icon: Settings,
       isActive: pathname.startsWith("settings"),
     },
