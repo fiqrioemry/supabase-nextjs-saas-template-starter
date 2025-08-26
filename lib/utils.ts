@@ -1,4 +1,6 @@
 import * as Color from "color-bits";
+import type { FieldConfig } from "@/lib/types/form";
+
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -32,6 +34,30 @@ export function getInitials(name: string) {
 export function generateId() {
   return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
+
+// helpers/ensureUniqueName.ts
+
+export function ensureUniqueName(
+  proposed: string,
+  currentId: string,
+  fields: FieldConfig[]
+) {
+  const base = slugify(proposed || "field");
+  let candidate = base;
+  let i = 1;
+  while (fields.some((f) => f.id !== currentId && f.name === candidate)) {
+    candidate = `${base}_${i++}`;
+  }
+  return candidate;
+}
+
+function slugify(s: string) {
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9_]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
 
 export function createUrl(path: string, params?: Record<string, string>) {
   const url = new URL(

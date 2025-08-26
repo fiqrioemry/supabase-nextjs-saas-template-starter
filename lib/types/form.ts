@@ -1,55 +1,50 @@
-export interface FormElement {
-  id: string;
-  type: FormElementType;
-  properties: FormElementProperties;
-  position: number;
-}
+// lib/types/form.ts
+export type FieldType =
+  | "shortText"
+  | "longText"
+  | "email"
+  | "number"
+  | "select"
+  | "radio"
+  | "checkbox"
+  | "switch"
+  | "slider"
+  | "date"
+  | "time"
+  | "file"
+  | "password"
+  | "rating";
 
-export type FormElementType =
-  | "title"
-  | "subtitle"
-  | "paragraph"
-  | "separator"
-  | "spacer"
-  | "text-field"
-  | "number-field"
-  | "textarea"
-  | "date-field";
+export type Option = { label: string; value: string };
 
-export interface FormElementProperties {
-  label?: string;
-  placeholder?: string;
+export type ValidationConfig = {
   required?: boolean;
-  defaultValue?: string;
-  text?: string; // for title, subtitle, paragraph
-  height?: number; // for spacer
-}
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+  minItems?: number;
+  maxItems?: number;
+  maxSize?: number;
+  pattern?: string;
+};
 
-export interface FormData {
-  id?: string;
-  title: string;
-  description?: string;
-  elements: FormElement[];
-  isActive?: boolean;
-  expiresAt?: string;
-}
-
-export interface FormField {
-  id: string;
-  form_id: string;
-  name: string;
-  label: string;
-  type: string;
-  options?: any;
-  position: number;
-  required: boolean;
-  created_at?: string;
-}
-
-export interface FormResponse {
-  id: string;
-  form_id: string;
-  responder_id?: string;
-  data: Record<string, any>;
-  created_at: string;
-}
+export type FieldConfig = {
+  type: FieldType;
+  name?: string;
+  fileType?: "docs" | "image" | "video";
+  label?: string;
+  reset?: boolean;
+  placeholder?: string;
+  helperText?: string;
+  defaultValue?: any;
+  options?: Option[];
+  accept?: string[];
+  multiple?: boolean;
+  step?: number;
+  rows?: number;
+  position?: number;
+  validation?: ValidationConfig;
+  content?: string;
+  className?: string;
+};
