@@ -1,4 +1,6 @@
 "use client";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Controller, useFormContext } from "react-hook-form";
 import { FieldWrapper } from "@/components/form-fields/field-wrapper";
@@ -12,6 +14,7 @@ export function LongTextField({
   maxLength,
   disabled,
   className,
+  reset,
 }: any) {
   const { control, formState } = useFormContext();
   return (
@@ -26,15 +29,29 @@ export function LongTextField({
           error={formState.errors?.[name]?.message as string}
           className={className}
         >
-          <Textarea
-            className="resize-none min-h-60"
-            id={name}
-            rows={rows}
-            {...field}
-            placeholder={placeholder}
-            disabled={disabled}
-            maxLength={maxLength}
-          />
+          <div className="relative">
+            <Textarea
+              className="resize-none min-h-30"
+              id={name}
+              rows={rows}
+              {...field}
+              placeholder={placeholder}
+              disabled={disabled}
+              maxLength={maxLength}
+            />
+            {reset && field.value && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => field.onChange("")}
+                className="absolute right-2 top-5 -translate-y-1/2 h-8 w-8"
+                tabIndex={-1}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </FieldWrapper>
       )}
     />

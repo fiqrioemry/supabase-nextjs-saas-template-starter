@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Controller, useFormContext } from "react-hook-form";
-import { FieldWrapper } from "@/components/form-fields/field-wrapper";
-import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Eye, EyeOff, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Controller, useFormContext } from 'react-hook-form';
+import { FieldWrapper } from '@/components/form-fields/field-wrapper';
 
 interface PasswordFieldProps {
   name: string;
@@ -15,7 +15,7 @@ interface PasswordFieldProps {
   helperText?: string;
   disabled?: boolean;
   className?: string;
-  reset?: boolean; // 🔑 param baru
+  reset?: boolean;
 }
 
 export function PasswordField({
@@ -45,12 +45,12 @@ export function PasswordField({
           <div className="relative">
             <Input
               id={name}
-              type={visible ? "text" : "password"}
+              type={visible ? 'text' : 'password'}
               {...field}
-              value={field.value ?? ""}
+              value={field.value ?? ''}
               placeholder={placeholder}
               disabled={disabled}
-              className={cn("pr-20", className)} // kasih space buat icon
+              className={cn('pr-20', className)} // kasih space buat icon
             />
 
             {/* 👁 toggle visibility */}
@@ -58,7 +58,7 @@ export function PasswordField({
               type="button"
               variant="ghost"
               size="icon"
-              onClick={() => setVisible((prev) => !prev)}
+              onClick={() => setVisible(prev => !prev)}
               className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
               tabIndex={-1}
             >
@@ -74,7 +74,7 @@ export function PasswordField({
                 type="button"
                 variant="ghost"
                 size="icon"
-                onClick={() => field.onChange("")}
+                onClick={() => field.onChange('')}
                 className="absolute right-10 top-1/2 -translate-y-1/2 h-8 w-8"
                 tabIndex={-1}
               >
